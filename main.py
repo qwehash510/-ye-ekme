@@ -9,7 +9,7 @@ from telethon.errors import FloodWaitError, UserPrivacyRestrictedError, PeerFloo
 # --- AYARLAR ---
 API_ID = 33188452
 API_HASH = 'ac4afbd122081956a173b16590c02609'
-BOT_TOKEN = '8530416063:AAFo6AcBGBrG8rg1EFC1PGfqC4LG9OpgprY'   
+BOT_TOKEN = '8520192303:AAGxF3gRP8LG6fjusT55dpJK0E3eNa3Qd48'   
 
 BOT_NAME = "! Jun. OTOMATİK ÇEKİCİ"
 OWNERS = {8571066107}   # <-- BURAYA KENDİ TELEGRAM ID'Nİ YAZ
