@@ -1,16 +1,14 @@
 import os
 import requests
 from telethon import TelegramClient, events, Button
-from telethon.tl.functions.channels import GetParticipantRequest
 
 # ---------------- AYARLAR ----------------
 API_ID = int(os.environ.get("API_ID"))
 API_HASH = os.environ.get("API_HASH")
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
-# Grup kontrolü
-ALLOWED_GROUP = "vxtikan"  # Grup kullanıcı adı
-OWNER_IDS = [8620961678]  # Buraya bot sahibinin Telegram ID'si (int) ekle
+# Grup reklamı
+GROUP_LINK = "https://t.me/vxtikan"
 
 # ---------------- TELETHON CLIENT ----------------
 client = TelegramClient("bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
@@ -30,73 +28,34 @@ def download_tiktok(url):
     except:
         return None, None
 
-async def check_membership(user_id):
-    """Kullanıcının gruba üye olup olmadığını kontrol eder"""
-    if user_id in OWNER_IDS:
-        return True  # Sahip her zaman onaylı
-    try:
-        await client(GetParticipantRequest(channel=ALLOWED_GROUP, user_id=user_id))
-        return True
-    except Exception as e:
-        if "User not participant" in str(e):
-            return False
-        print(f"⚠️ Beklenmedik hata: {e}")
-        return False
+def usage_text():
+    """Kullanım rehberi metni"""
+    return (
+        "✨ *Merhaba Sevgili Kullanıcı!* ✨\n\n"
+        "🎬 Bu bot sayesinde TikTok videolarını ve MP3 seslerini kolayca indirebilirsiniz.\n\n"
+        f"📣 Eğer grubumuza katılırsanız çok seviniriz: [Katılmak İçin Tıkla]({GROUP_LINK})\n\n"
+        "📌 *Kullanım Adımları:*\n"
+        "1️⃣ TikTok linkini kopyala\n"
+        "2️⃣ Bu linki bot’a gönder\n"
+        "3️⃣ Bot size filigransız video ve MP3 sesini ayrı ayrı gönderecek\n\n"
+        "🛠 Developer: @primalamazsin"
+    )
 
-# ---------------- /START MENÜSÜ ----------------
-@client.on(events.NewMessage(pattern="/start"))
+# ---------------- /START ve /HELP MENÜSÜ ----------------
+@client.on(events.NewMessage(pattern="/start|/help"))
 async def start(event):
     if event.out:
         return
-
-    user_id = event.sender_id
-    if await check_membership(user_id):
-        await event.reply(
-            "🎉 Botu kullanmaya başlayabilirsiniz!\n\n"
-            "📌 Kullanım:\n"
-            "1️⃣ TikTok linkini kopyala\n"
-            "2️⃣ Bana gönder\n"
-            "3️⃣ Filigransız video ve MP3 sesini al\n\n"
-            "🛠 Developer: @primalamazsin"
-        )
-        return
-
-    # Kullanıcı üye değilse normal başlangıç menüsü
     await event.reply(
-        "👋 Bu botu kullanabilmek için öncelikle grubumuza katılmalısınız.\n\n"
-        f"🔹 Grup: t.me/{ALLOWED_GROUP}\n\n"
-        "✅ Katıldıysanız aşağıdaki butona basarak doğrulayabilirsiniz.",
-        buttons=[
-            [Button.url("Gruba Katıl", f"https://t.me/{ALLOWED_GROUP}")],
-            [Button.inline("Katıldım ✅", data="check_join")]
-        ]
+        usage_text(),
+        buttons=[[Button.url("🌟 Gruba Katıl 🌟", GROUP_LINK)]]
     )
-
-# ---------------- ONAY BUTONU ----------------
-@client.on(events.CallbackQuery(data="check_join"))
-async def check_join(event):
-    user_id = event.sender_id
-    if await check_membership(user_id):
-        await event.edit(
-            "🎉 Onaylandı! Artık botu kullanabilirsiniz.\n\n"
-            "📌 Kullanım:\n"
-            "1️⃣ TikTok linkini kopyala\n"
-            "2️⃣ Bana gönder\n"
-            "3️⃣ Filigransız video ve MP3 sesini al\n\n"
-            "🛠 Developer: @primalamazsin"
-        )
-    else:
-        await event.answer("❌ Önce gruba katılmalısınız!", alert=True)
 
 # ---------------- TIKTOK MESAJLARI ----------------
 @client.on(events.NewMessage)
 async def handler(event):
     if event.out:
         return
-
-    user_id = event.sender_id
-    if not await check_membership(user_id):
-        return  # Üye değilse hiçbir şey yapma
 
     text = event.raw_text
     if is_tiktok(text):
@@ -110,7 +69,7 @@ async def handler(event):
         await client.send_file(event.chat_id, music, caption="🎧 TikTok MP3")
         await msg.delete()
     else:
-        if not text.startswith("/start"):
+        if not text.startswith("/start") and not text.startswith("/help"):
             await event.reply("📎 Lütfen geçerli bir TikTok linki gönderin!")
 
 # ---------------- RUN ----------------
