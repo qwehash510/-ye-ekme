@@ -10,7 +10,7 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN"))
 
 # Grup kontrolü
 ALLOWED_GROUP = "vxtikan"  # Grup kullanıcı adı
-OWNER_IDS = [123456789]  # Buraya bot sahibinin Telegram ID'si (int) ekle
+OWNER_IDS = [8620961678]  # Buraya bot sahibinin Telegram ID'si (int) ekle
 
 # ---------------- TELETHON CLIENT ----------------
 client = TelegramClient("bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
