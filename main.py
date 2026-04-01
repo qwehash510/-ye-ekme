@@ -45,6 +45,20 @@ async def start(event):
     if event.out:
         return
 
+    user_id = event.sender_id
+    if await check_membership(user_id):
+        # Kullanıcı zaten gruptaysa direkt onayla
+        await event.reply(
+            "🎉 Zaten gruba katıldığınız tespit edildi! Artık botu kullanabilirsiniz.\n\n"
+            "📌 Kullanım:\n"
+            "1️⃣ TikTok linkini kopyala\n"
+            "2️⃣ Bana gönder\n"
+            "3️⃣ Filigransız video ve MP3 sesini al\n\n"
+            "🛠 Developer: @primalamazsin"
+        )
+        return
+
+    # Kullanıcı grupta değilse normal başlangıç menüsü
     await event.reply(
         "👋 Merhaba! Bu botu kullanabilmek için öncelikle grubumuza katılmalısınız.\n\n"
         "🔹 Grup: t.me/vxtikan\n\n"
