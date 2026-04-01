@@ -1,5 +1,4 @@
 import os
-import re
 import requests
 from telethon import TelegramClient, events, Button
 from telethon.tl.functions.channels import GetParticipantRequest
@@ -7,17 +6,17 @@ from telethon.tl.functions.channels import GetParticipantRequest
 # ---------------- AYARLAR ----------------
 API_ID = int(os.environ.get("API_ID"))
 API_HASH = os.environ.get("API_HASH")
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
+BOT_TOKEN = os.environ.get("BOT_TOKEN"))
 
 # Grup kontrolü
-ALLOWED_GROUP = "vxtikan"  # Buraya kullanıcı adı yaz
+ALLOWED_GROUP = "vxtikan"  # Grup kullanıcı adı
+OWNER_IDS = [123456789]  # Buraya bot sahibinin Telegram ID'si (int) ekle
 
 # ---------------- TELETHON CLIENT ----------------
 client = TelegramClient("bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
 # ---------------- YARDIMCI FONKSİYONLAR ----------------
 def is_tiktok(url):
-    """TikTok linki kontrolü"""
     return "tiktok.com" in url
 
 def download_tiktok(url):
@@ -33,10 +32,15 @@ def download_tiktok(url):
 
 async def check_membership(user_id):
     """Kullanıcının gruba üye olup olmadığını kontrol eder"""
+    if user_id in OWNER_IDS:
+        return True  # Sahip her zaman onaylı
     try:
         await client(GetParticipantRequest(channel=ALLOWED_GROUP, user_id=user_id))
         return True
-    except:
+    except Exception as e:
+        if "User not participant" in str(e):
+            return False
+        print(f"⚠️ Beklenmedik hata: {e}")
         return False
 
 # ---------------- /START MENÜSÜ ----------------
@@ -47,9 +51,8 @@ async def start(event):
 
     user_id = event.sender_id
     if await check_membership(user_id):
-        # Kullanıcı zaten gruptaysa direkt onayla
         await event.reply(
-            "🎉 Zaten gruba katıldığınız tespit edildi! Artık botu kullanabilirsiniz.\n\n"
+            "🎉 Botu kullanmaya başlayabilirsiniz!\n\n"
             "📌 Kullanım:\n"
             "1️⃣ TikTok linkini kopyala\n"
             "2️⃣ Bana gönder\n"
@@ -58,10 +61,10 @@ async def start(event):
         )
         return
 
-    # Kullanıcı grupta değilse normal başlangıç menüsü
+    # Kullanıcı üye değilse normal başlangıç menüsü
     await event.reply(
-        "👋 Merhaba! Bu botu kullanabilmek için öncelikle grubumuza katılmalısınız.\n\n"
-        "🔹 Grup: t.me/vxtikan\n\n"
+        "👋 Bu botu kullanabilmek için öncelikle grubumuza katılmalısınız.\n\n"
+        f"🔹 Grup: t.me/{ALLOWED_GROUP}\n\n"
         "✅ Katıldıysanız aşağıdaki butona basarak doğrulayabilirsiniz.",
         buttons=[
             [Button.url("Gruba Katıl", f"https://t.me/{ALLOWED_GROUP}")],
